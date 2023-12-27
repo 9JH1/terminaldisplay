@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="main-title">terminal display window</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@700&display=swap");
+
+      body,
+      html {
+        background-color: rgb(0, 0, 0);
+        width: 100vw;
+        font-family: "Source Code Pro";
+        text-shadow: 0px 0px 6px rgba(255, 193, 104, 1);
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      body * {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      body *::-webkit-scrollbar {
+        display: none;
+      }
+
+      .main-win {
+        margin: 20px;
+        width: calc(100% - 20px);
+        height: calc(100% - 20px);
+      }
+
+      .main-win .inn-win {
+        overflow: scroll;
+        height: calc(100% - 18px);
+        transition: all 1s;
+      }
+
+      .main-win .inn-win .out-com-lin {
+        width: 100%;
+        color: orange;
+        white-space: pre;
+      }
+
+      .main-win .inn-tem {
+        height: 18px;
+        width: 100vw;
+      }
+
+      .main-win .inn-tem #inn-tem-inp {
+        background-color: transparent;
+        color: white;
+        height: 100%;
+        width: 100%;
+        outline: none;
+        border: none;
+        padding: 0px;
+        margin: 0;
+      }
+      .effect {
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(rgb(46, 46, 46) 10px, rgb(0, 0, 0) 20px);
+        background-repeat: repeat;
+        background-size: 100% 30px;
+        left: 0;
+        top: 0;
+        position: absolute;
+        opacity: 0.1;
+        background-attachment: fixed;
+        animation: pan-effect 2s infinite linear;
+      }
+      @keyframes pan-effect {
+        from {
+          background-position: 0% 0%;
+        }
+        to {
+          background-position: 0% -100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-win">
+      <div class="inn-win" id="inn-win-out"></div>
+      <div class="inn-tem">
+        <input type="text" id="inn-tem-inp" />
+      </div>
+    </div>
+    <div class="effect"></div>
+    <script title="functions">
+      function getData2(endpoint) {
+        return fetch(`http://127.0.0.1:5000${endpoint}`)
+          .then((res) => res.text())
+          .catch((error) => {});
+      }
+    </script>
+    <script title="main">
+      const output = document.getElementById("inn-win-out");
+      const input = document.getElementById("inn-tem-inp");
+      let lines = [];
+
+      input.addEventListener("keypress", function (e) {
+        output.scrollTo({
+          left: 0,
+          top: output.scrollHeight,
+          behavior: "smooth",
+        });
+        if (e.key === "Enter") {
+          const dataInput = input.value;
+          if (dataInput.replace(/\s/g, "") !== "") {
+            getData2(`/command/${input.value}`).then(function (data) {
+              const outElement = document.createElement("div");
+              outElement.classList.add("out-com-lin");
+              outElement.innerText = data;
+              output.appendChild(outElement);
+              output.scrollTo({
+                left: 0,
+                top: output.scrollHeight,
+                behavior: "smooth",
+              });
+            });
+            input.value = "";
+          } else {
+            getData2(`/command/echo.`).then(function (data) {
+              const outElement = document.createElement("div");
+              outElement.classList.add("out-com-lin");
+              outElement.innerText = data;
+              output.appendChild(outElement);
+              output.scrollTo({
+                left: 0,
+                top: output.scrollHeight,
+                behavior: "smooth",
+              });
+            });
+            input.value = "";
+          }
+        }
+      });
+      const idleElement1 = document.createElement("div");
+      idleElement1.classList.add("out-com-lin");
+      idleElement1.innerText = "made my :3hy";
+      output.appendChild(idleElement);
+      function logLinesWithDelay(index) {
+        if (index < lines.length) {
+          const idleElement = document.createElement("div");
+          idleElement.classList.add("out-com-lin");
+          idleElement.innerText = lines[index];
+          output.appendChild(idleElement);
+          output.scrollTo({
+            left: 0,
+            top: output.scrollHeight,
+            behavior: "smooth",
+          });
+          setTimeout(() => {
+            logLinesWithDelay(index + 1);
+          }, 200);
+        }
+      }
+
+      getData2("/idle").then(function (idleData) {
+        lines = idleData.split("\n");
+        logLinesWithDelay(0);
+      });
+    </script>
+  </body>
+</html>
